@@ -1,0 +1,22 @@
+services:
+  backend:
+    build: ./
+    container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+        - ./src:/LMS/src
+        - ./commands:/LMS/commands
+        - ./.env:/LMS/.env
+    command:
+      - ./commands/run_app.sh
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: '3G'
+        reservations:
+          cpus: '1.0'
+          memory: '1G'
