@@ -16,6 +16,7 @@ class PostgresSettings(BaseSettings):
 
 class Settings(BaseSettings):
     BASE_PATH: str = str(pathlib.Path(__file__).resolve().parent.parent.parent)
+    DEBUG: bool = True
 
     POSTGRES: PostgresSettings = PostgresSettings()
 
