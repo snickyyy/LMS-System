@@ -50,6 +50,9 @@ class LoggerSettings(BaseSettings):
     LOGS_FORMAT: str = '[%(asctime)s] %(filename)s:%(lineno)d:%(funcName)s %(levelname)s - %(message)s'
     LOGS_DATEFORMAT: str = "%Y-%m-%d %H:%M:%S"
 
+class AuthSettings(BaseSettings):
+    REGISTER_EXPIRE_SEC: int = 3_600
+
 class Settings(BaseSettings):
     BASE_PATH: str = str(pathlib.Path(__file__).resolve().parent.parent.parent)
     DEBUG: bool = True
@@ -58,6 +61,7 @@ class Settings(BaseSettings):
     APP: AppSettings = AppSettings()
     EMAIL: EmailSettings = EmailSettings()
     LOGGING: LoggerSettings = LoggerSettings()
+    AUTH: AuthSettings = AuthSettings()
 
     class Config:
         env_file = os.path.join(pathlib.Path(__file__).resolve().parent.parent.parent, ".env")
