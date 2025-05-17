@@ -1,7 +1,17 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+import settings.logger
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    settings.logger.configure_logger()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 origins = ["http://127.0.0.1:8000", "http://localhost:8000"]
 
