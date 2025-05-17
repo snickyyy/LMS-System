@@ -12,6 +12,7 @@ dependencies = [
     "psycopg2-binary>=2.9.10",
     "pydantic-settings>=2.9.1",
     "pyright>=1.1.400",
+    "redis>=6.1.0",
     "ruff>=0.11.9",
     "sqlalchemy[asyncio]>=2.0.41",
     "uvicorn[standard,standart]>=0.34.2",

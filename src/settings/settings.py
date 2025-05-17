@@ -27,6 +27,18 @@ class PostgresSettings(BaseSettings):
         )
         extra = "ignore"
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_PASSWORD: str
+    REDIS_DB: int = 0
+
+    class Config:
+        env_file = os.path.join(
+            pathlib.Path(__file__).resolve().parent.parent.parent, ".env"
+        )
+        extra = "ignore"
+
 class EmailSettings(BaseSettings):
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
@@ -62,6 +74,7 @@ class Settings(BaseSettings):
     EMAIL: EmailSettings = EmailSettings()
     LOGGING: LoggerSettings = LoggerSettings()
     AUTH: AuthSettings = AuthSettings()
+    REDIS: RedisSettings = RedisSettings()
 
     class Config:
         env_file = os.path.join(pathlib.Path(__file__).resolve().parent.parent.parent, ".env")

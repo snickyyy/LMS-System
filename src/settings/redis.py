@@ -1,0 +1,12 @@
+from functools import lru_cache
+
+from redis.asyncio import Redis
+
+from settings.settings import get_settings
+
+
+@lru_cache
+def get_redis_client():
+    s = get_settings().REDIS
+    redis_client = Redis(s.REDIS_HOST, port=s.REDIS_PORT, db=s.REDIS_DB, decode_responses=True)
+    return redis_client
