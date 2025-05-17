@@ -9,6 +9,7 @@ WORKDIR /LMS
 
 COPY pyproject.toml .
 COPY uv.lock .
+COPY requirements.txt .
 
 COPY ./src ./src
 

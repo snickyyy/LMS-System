@@ -19,8 +19,8 @@ class DataBase:
             autoflush=False,
         )
 
-    def get_session(self):
-        with self.sessionmaker() as session:
+    async def get_session(self):
+        async with self.sessionmaker() as session:
             yield session
 
 @lru_cache

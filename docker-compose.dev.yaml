@@ -7,6 +7,8 @@ services:
     volumes:
         - ./src:/LMS/src
         - ./commands:/LMS/commands
+        - ./pyproject.toml:/LMS/pyproject.toml
+        - ./uv.lock:/LMS/uv.lock
         - ./.env:/LMS/.env
     command:
       - ./commands/run_app.sh

@@ -1,5 +1,6 @@
 import logging
 from asyncio import sleep, create_task
+from functools import lru_cache
 
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from pydantic import SecretStr, EmailStr
@@ -21,15 +22,9 @@ class EmailService:
         USE_CREDENTIALS=settings.get_settings().EMAIL.USE_CREDENTIALS,
         VALIDATE_CERTS=settings.get_settings().EMAIL.VALIDATE_CERTS,
     )
-    _instance = None
 
     def __init__(self):
         self.fm = FastMail(self._config)
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(EmailService, cls).__new__(cls)
-        return cls._instance
 
     async def _send_email(self, recipients: list[str], subject: str, body: str):
         message = MessageSchema(
@@ -41,6 +36,7 @@ class EmailService:
         for i in range(3):
             try:
                 await self.fm.send_message(message)
+                break
             except Exception as e:
                 logger.error("Error sending email try: %s || error: %s", i+1, e)
                 await sleep(i+1)
@@ -48,5 +44,9 @@ class EmailService:
     async def send_register_email(self, to: str, token: str):
         s = settings.get_settings().APP
         subject = "GoCode confirm account"
-        body = f"""Hi, this is a registration mail, thanks for using our service. follow the url below\nhttp://{s.APP_HOST}:{s.APP_PORT}/accounts/auth/activate-account/{token}"""
+        body = f"""Hi, this is a registration mail, thanks for using our service. follow the url below\nhttp://{s.HOST}:{s.PORT}/accounts/auth/activate-account/{token}"""
         create_task(self._send_email([to], subject, body))
+
+@lru_cache
+def get_email_service() -> EmailService:
+    return EmailService()
