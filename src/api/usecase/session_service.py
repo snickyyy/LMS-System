@@ -1,0 +1,21 @@
+from uuid import uuid4
+
+from api.repositories.base_redis_repository import BaseRedisRepository
+from api.schemas.dto.session import BaseSession
+
+
+class SessionService:
+    def __init__(self, redis_repository: BaseRedisRepository):
+        self.redis_repository = redis_repository
+
+    async def create_session(self, session: BaseSession) -> uuid4:
+        to_json = session.model_dump_json()
+        await self.redis_repository.set(session.prefix, str(session.session_id), to_json, session.exp)
+        return session.session_id
+
+    async def get_session(self, prefix: str, session_id: str) -> BaseSession:
+        session = await self.redis_repository.get(prefix, session_id)
+        return BaseSession.model_validate_json(session)
+
+    async def delete_session(self, prefix: str, session_id: str):
+        await self.redis_repository.delete(prefix, session_id)
