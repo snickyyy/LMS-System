@@ -1,6 +1,10 @@
+from functools import lru_cache
 from uuid import uuid4
 
-from api.repositories.base_redis_repository import BaseRedisRepository
+from api.repositories.base_redis_repository import (
+    BaseRedisRepository,
+    get_redis_repository,
+)
 from api.schemas.dto.session import BaseSession
 
 
@@ -19,3 +23,7 @@ class SessionService:
 
     async def delete_session(self, prefix: str, session_id: str):
         await self.redis_repository.delete(prefix, session_id)
+
+@lru_cache
+def get_session_service() -> SessionService:
+    return SessionService(get_redis_repository())

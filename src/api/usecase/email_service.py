@@ -12,7 +12,7 @@ class EmailService:
     _config = ConnectionConfig(
         MAIL_USERNAME=settings.get_settings().EMAIL.USERNAME,
         MAIL_PASSWORD=SecretStr(settings.get_settings().EMAIL.PASSWORD),
-        MAIL_FROM=EmailStr(settings.get_settings().EMAIL.FROM),
+        MAIL_FROM=settings.get_settings().EMAIL.FROM,
         MAIL_PORT=settings.get_settings().EMAIL.PORT,
         MAIL_SERVER=settings.get_settings().EMAIL.SERVER,
         MAIL_FROM_NAME=settings.get_settings().EMAIL.FROM_NAME,
@@ -50,7 +50,3 @@ class EmailService:
         subject = "GoCode confirm account"
         body = f"""Hi, this is a registration mail, thanks for using our service. follow the url below\nhttp://{s.APP_HOST}:{s.APP_PORT}/accounts/auth/activate-account/{token}"""
         create_task(self._send_email([to], subject, body))
-
-hui1 = EmailService()
-hui2 = EmailService()
-assert hui1 is hui2, "Singleton instance not working as expected"

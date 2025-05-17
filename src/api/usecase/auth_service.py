@@ -1,14 +1,15 @@
 from datetime import timedelta, datetime
+from functools import lru_cache
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.enums.role import AppRole
 from api.models import User
-from api.repositories.user_repository import UserRepository
+from api.repositories.user_repository import UserRepository, get_user_repository
 from api.schemas.dto.session import BaseSession, RegisterSession
 from api.schemas.request.auth import RegisterRequest
 from api.usecase.email_service import EmailService
-from api.usecase.session_service import SessionService
+from api.usecase.session_service import SessionService, get_session_service
 from settings.settings import get_settings
 from utils.crypto import encrypt
 from utils.hash import hash_password
@@ -16,6 +17,7 @@ from utils.hash import hash_password
 
 class AuthService:
     _email_service: EmailService()
+
     def __init__(self, user_repository: UserRepository, session_service: SessionService):
         self.user_repository = user_repository
         self.session_service = session_service
@@ -47,3 +49,9 @@ class AuthService:
             to=user.email,
             token=session_id,
         )
+
+@lru_cache
+def get_auth_service() -> AuthService:
+    user_repository = get_user_repository()
+    session_service = get_session_service()
+    return AuthService(user_repository, session_service)

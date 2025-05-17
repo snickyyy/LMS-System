@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from redis.asyncio import Redis
 
 from settings.redis import get_redis_client
@@ -25,3 +27,7 @@ class BaseRedisRepository:
     async def count(self):
         result = await self._client.dbsize()
         return result
+
+@lru_cache
+def get_redis_repository() -> BaseRedisRepository:
+    return BaseRedisRepository()
