@@ -5,6 +5,9 @@ from api.interfaces.postgres_repository import IPostgresRepository
 
 
 class BasePostgresRepository[T](IPostgresRepository[T]):
+    def __init__(self, model: T):
+        self._model = model
+
     async def get_all(self,session: AsyncSession, limit: int, offset: int) -> list[T]:
         result = await session.execute(select(self._model).offset(offset).limit(limit))
         return result.scalars().all()
