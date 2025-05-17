@@ -10,20 +10,26 @@ logger = logging.getLogger(__name__)
 
 class EmailService:
     _config = ConnectionConfig(
-        MAIL_USERNAME=settings.get_settings().EMAIL.MAIL_USERNAME,
-        MAIL_PASSWORD=SecretStr(settings.get_settings().EMAIL.MAIL_PASSWORD),
-        MAIL_FROM=EmailStr(settings.get_settings().EMAIL.MAIL_FROM),
-        MAIL_PORT=settings.get_settings().EMAIL.MAIL_PORT,
-        MAIL_SERVER=settings.get_settings().EMAIL.MAIL_SERVER,
-        MAIL_FROM_NAME=settings.get_settings().EMAIL.MAIL_FROM_NAME,
-        MAIL_STARTTLS=settings.get_settings().EMAIL.MAIL_STARTTLS,
-        MAIL_SSL_TLS=settings.get_settings().EMAIL.MAIL_SSL_TLS,
+        MAIL_USERNAME=settings.get_settings().EMAIL.USERNAME,
+        MAIL_PASSWORD=SecretStr(settings.get_settings().EMAIL.PASSWORD),
+        MAIL_FROM=EmailStr(settings.get_settings().EMAIL.FROM),
+        MAIL_PORT=settings.get_settings().EMAIL.PORT,
+        MAIL_SERVER=settings.get_settings().EMAIL.SERVER,
+        MAIL_FROM_NAME=settings.get_settings().EMAIL.FROM_NAME,
+        MAIL_STARTTLS=settings.get_settings().EMAIL.STARTTLS,
+        MAIL_SSL_TLS=settings.get_settings().EMAIL.SSL_TLS,
         USE_CREDENTIALS=settings.get_settings().EMAIL.USE_CREDENTIALS,
         VALIDATE_CERTS=settings.get_settings().EMAIL.VALIDATE_CERTS,
     )
+    _instance = None
 
     def __init__(self):
         self.fm = FastMail(self._config)
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(EmailService, cls).__new__(cls)
+        return cls._instance
 
     async def _send_email(self, recipients: list[str], subject: str, body: str):
         message = MessageSchema(
@@ -44,3 +50,7 @@ class EmailService:
         subject = "GoCode confirm account"
         body = f"""Hi, this is a registration mail, thanks for using our service. follow the url below\nhttp://{s.APP_HOST}:{s.APP_PORT}/accounts/auth/activate-account/{token}"""
         create_task(self._send_email([to], subject, body))
+
+hui1 = EmailService()
+hui2 = EmailService()
+assert hui1 is hui2, "Singleton instance not working as expected"
