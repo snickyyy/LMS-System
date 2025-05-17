@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from api.enums.role import AppRole
 from api.models.base import BaseModel
+from api.schemas.dto.user import UserDTO
 
 
 class User(BaseModel):
@@ -14,3 +15,14 @@ class User(BaseModel):
     role: Mapped[AppRole] = mapped_column(SqlEnum(AppRole), nullable=False, default=AppRole.ANONYMOUS)
     balance: Mapped[int] = mapped_column(nullable=False, default=0)
     image: Mapped[str] = mapped_column(String(255), nullable=True)
+
+    def to_dto(self) -> UserDTO:
+        return UserDTO(
+            id=self.id,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            email=self.email,
+            description=self.description,
+            role=self.role.name,
+            image=self.image
+        )

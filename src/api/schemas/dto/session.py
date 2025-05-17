@@ -15,4 +15,4 @@ class BaseSession(BaseModel):
     exp: int
 
 class RegisterSession(BaseModel):
-    UserDTO: UserDTO
+    user_dto: UserDTO
