@@ -1,3 +1,4 @@
+import logging
 import os.path
 import pathlib
 from functools import lru_cache
@@ -26,12 +27,37 @@ class PostgresSettings(BaseSettings):
         )
         extra = "ignore"
 
+class EmailSettings(BaseSettings):
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_FROM_NAME: str = "GoCode"
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+    USE_CREDENTIALS: bool = True
+    VALIDATE_CERTS: bool = True
+
+    class Config:
+        env_file = os.path.join(
+            pathlib.Path(__file__).resolve().parent.parent.parent, ".env"
+        )
+        extra = "ignore"
+
+class LoggerSettings(BaseSettings):
+    LOGS_LEVEL: int = logging.INFO
+    LOGS_FORMAT: str = '[%(asctime)s] %(filename)s:%(lineno)d:%(funcName)s %(levelname)s - %(message)s'
+    LOGS_DATEFORMAT: str = "%Y-%m-%d %H:%M:%S"
+
 class Settings(BaseSettings):
     BASE_PATH: str = str(pathlib.Path(__file__).resolve().parent.parent.parent)
     DEBUG: bool = True
 
     POSTGRES: PostgresSettings = PostgresSettings()
     APP: AppSettings = AppSettings()
+    EMAIL: EmailSettings = EmailSettings()
+    LOGGING: LoggerSettings = LoggerSettings()
 
     class Config:
         env_file = os.path.join(pathlib.Path(__file__).resolve().parent.parent.parent, ".env")
