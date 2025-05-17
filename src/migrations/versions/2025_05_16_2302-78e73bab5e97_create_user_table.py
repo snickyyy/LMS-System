@@ -10,6 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
+from api.enums.role import AppRole
 
 # revision identifiers, used by Alembic.
 revision: str = '78e73bab5e97'
@@ -27,8 +28,8 @@ def upgrade() -> None:
     sa.Column('email', sa.String(length=100), nullable=False),
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('description', sa.String(length=255), nullable=True),
-    sa.Column('role', sa.Enum('ANONYMOUS', 'USER', 'ADMIN', name='approle'), nullable=False),
-    sa.Column('balance', sa.Integer(), nullable=False),
+    sa.Column('role', sa.Enum(AppRole, name='app_role'), nullable=False, default=AppRole.ANONYMOUS),
+    sa.Column('balance', sa.Integer(), nullable=False, default=0),
     sa.Column('image', sa.String(length=255), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
