@@ -3,7 +3,7 @@ from asyncio import sleep, create_task
 from functools import lru_cache
 
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from pydantic import SecretStr, EmailStr
+from pydantic import SecretStr
 
 from settings import settings
 

@@ -15,3 +15,10 @@ async def register(register_request: RegisterRequest, session: AsyncSession = De
 
     await service.register(session, register_request)
     return MessageResponse(msg="success")
+
+@router.get("/activate-account/{token}", response_model=MessageResponse, status_code=200)
+async def activate_account(token: str, session: AsyncSession = Depends(get_db().get_session)):
+    service = get_auth_service()
+
+    await service.confirm_account(session, token)
+    return MessageResponse(msg="success")

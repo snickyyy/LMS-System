@@ -6,6 +6,7 @@ from api.repositories.base_redis_repository import (
     get_redis_repository,
 )
 from api.schemas.dto.session import BaseSession
+from utils.crypto import decrypt
 
 
 class SessionService:
@@ -17,9 +18,12 @@ class SessionService:
         await self.redis_repository.set(session.prefix, str(session.session_id), to_json, session.exp)
         return session.session_id
 
-    async def get_session(self, prefix: str, session_id: str) -> BaseSession:
+    async def get_session(self, prefix: str, session_id: str, decrypt_payload=False) -> BaseSession:
         session = await self.redis_repository.get(prefix, session_id)
-        return BaseSession.model_validate_json(session)
+        session = BaseSession.model_validate_json(session)
+        if decrypt_payload:
+            session.payload = decrypt(session.payload)
+        return session
 
     async def delete_session(self, prefix: str, session_id: str):
         await self.redis_repository.delete(prefix, session_id)

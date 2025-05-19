@@ -36,7 +36,7 @@ class PostgresSettings(BaseSettings):
 
 class Prefixes(BaseSettings):
     AUTHORIZATION: str = "authorization"
-    AUTHENTICATION: str = "authentication"
+    REGISTER: str = "register"
 
 
 class RedisSettings(BaseSettings):

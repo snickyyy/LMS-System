@@ -24,7 +24,7 @@ class BasePostgresRepository[T](IPostgresRepository[T]):
 
     async def update(self,session: AsyncSession, id: int, obj: T):
         stmt = update(self._model).where(self._model.id == id).values(
-            **{key: value for key, value in obj.__dict__.items() if key is not None}
+            **{key: value for key, value in obj.__dict__.items() if value is not None}
         )
         await session.execute(stmt)
         await session.commit()

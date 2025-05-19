@@ -36,8 +36,8 @@ class AuthService:
             user_dto=user_dto
         )
         session_struct = BaseSession(
-            prefix=get_settings().REDIS.PREFIXES.AUTHORIZATION,
-            type=get_settings().REDIS.PREFIXES.AUTHORIZATION,
+            prefix=get_settings().REDIS.PREFIXES.REGISTER,
+            type=get_settings().REDIS.PREFIXES.REGISTER,
             payload=encrypt(register_session_struct.model_dump_json()),
             exp=int((datetime.now() + timedelta(seconds=get_settings().AUTH.REGISTER_EXPIRE_SEC)).timestamp())
         )
@@ -47,6 +47,13 @@ class AuthService:
             to=user.email,
             token=session_id,
         )
+
+    async def confirm_account(self, db_session: AsyncSession, token: str):
+        session = await self.session_service.get_session(get_settings().REDIS.PREFIXES.REGISTER, token, decrypt_payload=True)
+        payload = RegisterSession.model_validate_json(session.payload)
+        await self.user_repository.update(db_session, payload.user_dto.id, User(role=AppRole.USER))
+        await self.session_service.delete_session(get_settings().REDIS.PREFIXES.REGISTER, token)
+
 
 @lru_cache
 def get_auth_service() -> AuthService:
