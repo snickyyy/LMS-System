@@ -23,6 +23,6 @@ class User(BaseModel):
             last_name=self.last_name,
             email=self.email,
             description=self.description,
-            role=self.role.name,
+            role=self.role,
             image=self.image
         )

@@ -35,7 +35,7 @@ class PostgresSettings(BaseSettings):
     DB: str
 
 class Prefixes(BaseSettings):
-    AUTHORIZATION: str = "authorization"
+    LOGIN: str = "login"
     REGISTER: str = "register"
 
 
@@ -81,8 +81,10 @@ class LoggerSettings(BaseSettings):
     LOGS_FORMAT: str = '[%(asctime)s] %(filename)s:%(lineno)d:%(funcName)s %(levelname)s - %(message)s'
     LOGS_DATEFORMAT: str = "%Y-%m-%d %H:%M:%S"
 
+
 class AuthSettings(BaseSettings):
     REGISTER_EXPIRE_SEC: int = 3_600
+    LOGIN_EXPIRE_SEC: int = 86_400
 
 
 class Settings(BaseSettings):

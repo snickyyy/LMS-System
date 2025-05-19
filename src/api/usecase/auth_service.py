@@ -7,6 +7,7 @@ from api.enums.role import AppRole
 from api.models import User
 from api.repositories.user_repository import UserRepository, get_user_repository
 from api.schemas.dto.session import BaseSession, RegisterSession
+from api.schemas.dto.user import UpdateUserDTO
 from api.schemas.request.auth import RegisterRequest
 from api.usecase.email_service import EmailService, get_email_service
 from api.usecase.session_service import SessionService, get_session_service
@@ -48,11 +49,22 @@ class AuthService:
             token=session_id,
         )
 
-    async def confirm_account(self, db_session: AsyncSession, token: str):
+    async def confirm_account(self, db_session: AsyncSession, token: str) -> str:
         session = await self.session_service.get_session(get_settings().REDIS.PREFIXES.REGISTER, token, decrypt_payload=True)
         payload = RegisterSession.model_validate_json(session.payload)
-        await self.user_repository.update(db_session, payload.user_dto.id, User(role=AppRole.USER))
+        await self.user_repository.update(db_session, payload.user_dto.id, UpdateUserDTO(role=AppRole.USER))
         await self.session_service.delete_session(get_settings().REDIS.PREFIXES.REGISTER, token)
+
+        payload.user_dto.role = AppRole.USER
+        session_struct = BaseSession(
+            prefix=get_settings().REDIS.PREFIXES.LOGIN,
+            type=get_settings().REDIS.PREFIXES.LOGIN,
+            payload=encrypt(payload.model_dump_json()),
+            exp=int((datetime.now() + timedelta(seconds=get_settings().AUTH.LOGIN_EXPIRE_SEC)).timestamp())
+        )
+        session_id = await self.session_service.create_session(session_struct)
+        return session_id
+
 
 
 @lru_cache

@@ -16,3 +16,6 @@ class BaseSession(BaseModel):
 
 class RegisterSession(BaseModel):
     user_dto: UserDTO
+
+class LoginSession(BaseModel):
+    user_dto: UserDTO

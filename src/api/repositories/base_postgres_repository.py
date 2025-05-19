@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func
@@ -22,9 +23,9 @@ class BasePostgresRepository[T](IPostgresRepository[T]):
         await session.commit()
         return obj
 
-    async def update(self,session: AsyncSession, id: int, obj: T):
+    async def update(self,session: AsyncSession, id: int, obj: BaseModel):
         stmt = update(self._model).where(self._model.id == id).values(
-            **{key: value for key, value in obj.__dict__.items() if value is not None}
+            **obj.model_dump(exclude_unset=True)
         )
         await session.execute(stmt)
         await session.commit()
