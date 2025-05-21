@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 import settings.logger
 from api.handlers.api import accounts_router
-from api.handlers.api.auth import router as auth_router
+from api.handlers.middlewares.handle_error import error_handling_middleware
 from settings.redis import get_redis_client
 
 
@@ -17,7 +17,10 @@ async def lifespan(app: FastAPI):
     await redis_client.close()
 
 app = FastAPI(lifespan=lifespan)
+
 app.include_router(prefix="", router=accounts_router)
+
+app.middleware("http")(error_handling_middleware)
 
 origins = ["http://127.0.0.1:8000", "http://localhost:8000"]
 
