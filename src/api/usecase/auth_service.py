@@ -4,6 +4,8 @@ from functools import lru_cache
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.enums.role import AppRole
+from api.errors.usecase import ObjectAlreadyExists
+from api.errors.repository import AlreadyExists
 from api.models import User
 from api.repositories.user_repository import UserRepository, get_user_repository
 from api.schemas.dto.session import BaseSession, RegisterSession
@@ -30,7 +32,11 @@ class AuthService:
             password=hash_password(request.password),
             role=AppRole.ANONYMOUS,
         )
-        await self.user_repository.create(session, user)
+
+        try:
+            await self.user_repository.create(session, user)
+        except AlreadyExists:
+            raise ObjectAlreadyExists("User with this email already exists")
 
         user_dto = user.to_dto()
         register_session_struct = RegisterSession(
@@ -51,8 +57,13 @@ class AuthService:
 
     async def confirm_account(self, db_session: AsyncSession, token: str) -> str:
         session = await self.session_service.get_session(get_settings().REDIS.PREFIXES.REGISTER, token, decrypt_payload=True)
+
         payload = RegisterSession.model_validate_json(session.payload)
-        await self.user_repository.update(db_session, payload.user_dto.id, UpdateUserDTO(role=AppRole.USER))
+        try:
+            await self.user_repository.update(db_session, payload.user_dto.id, UpdateUserDTO(role=AppRole.USER))
+        except AlreadyExists:
+            raise ObjectAlreadyExists("User with this email already exists")
+
         await self.session_service.delete_session(get_settings().REDIS.PREFIXES.REGISTER, token)
 
         payload.user_dto.role = AppRole.USER
