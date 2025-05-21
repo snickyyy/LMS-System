@@ -19,9 +19,9 @@ class InternalDatabaseError(Exception):
 def handle_db_errors(logger: Logger):
     def internal(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        async def wrapper(*args, **kwargs):
             try:
-                return func(*args, **kwargs)
+                return await func(*args, **kwargs)
             except IntegrityError as e:
                 logger.error(e)
                 raise AlreadyExists(e)
