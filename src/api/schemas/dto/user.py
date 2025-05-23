@@ -7,7 +7,7 @@ class UserDTO(BaseModel):
     id: int
     first_name: str
     last_name: str
-    email: str
+    email: EmailStr
     role: AppRole = AppRole.ANONYMOUS
     description: str | None = None
     image: str | None = None
