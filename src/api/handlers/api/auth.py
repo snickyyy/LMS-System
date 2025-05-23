@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import defer
 
-from api.schemas.request.auth import RegisterRequest
+from api.schemas.request.auth import RegisterRequest, LoginRequest
 from api.schemas.response.base import MessageResponse
 from api.usecase.auth_service import get_auth_service
 from settings.db import get_db
@@ -21,5 +22,13 @@ async def activate_account(response: Response, token: str, session: AsyncSession
     service = get_auth_service()
 
     session = await service.confirm_account(session, token)
+    response.set_cookie("sessionID", session, get_settings().AUTH.LOGIN_EXPIRE_SEC, secure=True, httponly=True)
+    return MessageResponse(msg="success")
+
+@router.post("/login", response_model=MessageResponse, status_code=200)
+async def login(response: Response, login_request: LoginRequest, session: AsyncSession = Depends(get_db().get_session)):
+    service = get_auth_service()
+
+    session = await service.login(session, login_request)
     response.set_cookie("sessionID", session, get_settings().AUTH.LOGIN_EXPIRE_SEC, secure=True, httponly=True)
     return MessageResponse(msg="success")
