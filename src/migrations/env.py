@@ -9,6 +9,7 @@ from alembic import context
 
 from api.models.base import BaseModel
 from api.models import * # noqa: F403
+from settings.db import get_db
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -28,7 +29,7 @@ target_metadata = BaseModel.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-
+config.set_main_option("sqlalchemy.url", get_db().db_url)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
