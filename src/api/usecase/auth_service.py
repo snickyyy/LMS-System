@@ -91,6 +91,9 @@ class AuthService:
         session_id = await self.session_service.create_session(session_struct)
         return session_id
 
+    async def logout(self, token: str):
+        await self.session_service.delete_session(get_settings().REDIS.PREFIXES.LOGIN, token)
+
 
 @lru_cache
 def get_auth_service() -> AuthService:

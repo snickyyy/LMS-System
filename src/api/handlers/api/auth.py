@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import defer
 
@@ -31,4 +31,12 @@ async def login(response: Response, login_request: LoginRequest, session: AsyncS
 
     session = await service.login(session, login_request)
     response.set_cookie("sessionID", session, get_settings().AUTH.LOGIN_EXPIRE_SEC, secure=True, httponly=True)
+    return MessageResponse(msg="success")
+
+@router.delete("/logout", response_model=MessageResponse, status_code=200)
+async def logout(request: Request, response: Response):
+    service = get_auth_service()
+
+    await service.logout(request.cookies.get("sessionID"))
+    response.delete_cookie("sessionID")
     return MessageResponse(msg="success")
