@@ -4,18 +4,18 @@ from functools import lru_cache
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.enums.role import AppRole
-from api.errors.usecase import ObjectAlreadyExists
+from api.errors.usecase import ObjectAlreadyExists, BadRequestError
 from api.errors.repository import AlreadyExists
 from api.models import User
 from api.repositories.user_repository import UserRepository, get_user_repository
 from api.schemas.dto.session import BaseSession, RegisterSession
 from api.schemas.dto.user import UpdateUserDTO
-from api.schemas.request.auth import RegisterRequest
+from api.schemas.request.auth import RegisterRequest, LoginRequest
 from api.usecase.email_service import EmailService, get_email_service
 from api.usecase.session_service import SessionService, get_session_service
 from settings.settings import get_settings
 from utils.crypto import encrypt
-from utils.hash import hash_password
+from utils.hash import hash_password, check_hash
 
 
 class AuthService:
@@ -76,6 +76,20 @@ class AuthService:
         session_id = await self.session_service.create_session(session_struct)
         return session_id
 
+    async def login(self,db_session: AsyncSession, request: LoginRequest) -> str:
+        user = await self.user_repository.get_by_email(db_session, str(request.email))
+        if not user or not check_hash(str(user.password), request.password):
+            raise BadRequestError("Invalid credentials")
+
+        user_dto = user.to_dto()
+        session_struct = BaseSession(
+            prefix=get_settings().REDIS.PREFIXES.LOGIN,
+            type=get_settings().REDIS.PREFIXES.LOGIN,
+            payload=encrypt(user_dto.model_dump_json()),
+            exp=int((datetime.now() + timedelta(seconds=get_settings().AUTH.LOGIN_EXPIRE_SEC)).timestamp())
+        )
+        session_id = await self.session_service.create_session(session_struct)
+        return session_id
 
 
 @lru_cache
