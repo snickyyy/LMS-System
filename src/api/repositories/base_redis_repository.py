@@ -2,10 +2,11 @@ from functools import lru_cache
 
 from redis.asyncio import Redis
 
+from api.interfaces.redis_repository import IBaseRedisRepository
 from settings.redis import get_redis_client
 
 
-class BaseRedisRepository:
+class BaseRedisRepository(IBaseRedisRepository):
     _client = get_redis_client()
 
     async def set(self, prefix: str, key: str, value: str, exat: int = 0):

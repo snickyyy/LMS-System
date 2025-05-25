@@ -2,16 +2,14 @@ from functools import lru_cache
 from uuid import uuid4
 
 from api.errors.usecase import BadRequestError
-from api.repositories.base_redis_repository import (
-    BaseRedisRepository,
-    get_redis_repository,
-)
+from api.interfaces.redis_repository import IBaseRedisRepository
+from api.repositories.base_redis_repository import get_redis_repository
 from api.schemas.dto.session import BaseSession
 from utils.crypto import decrypt
 
 
 class SessionService:
-    def __init__(self, redis_repository: BaseRedisRepository):
+    def __init__(self, redis_repository: IBaseRedisRepository):
         self.redis_repository = redis_repository
 
     async def create_session(self, session: BaseSession) -> uuid4:
